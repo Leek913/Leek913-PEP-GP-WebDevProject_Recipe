@@ -12,21 +12,29 @@ const BASE_URL = "http://localhost:8081"; // backend URL
  * - searchInput (optional for future use)
  * - adminLink (if visible conditionally)
  */
+const addIngredientNameInput = document.getElementById("add-ingredient-name-input");
+const deleteIngredientNameInput = document.getElementById("delete-ingredient-name-input");
+const ingredientListContainer = document.getElementById("ingredient-list");
+const addIngredientButton = document.getElementById("add-ingredient-submit-button");
+const deleteIngredientButton = document.getElementById("delete-ingredient-submit-button");
 
 /* 
  * TODO: Attach 'onclick' events to:
  * - "add-ingredient-submit-button" → addIngredient()
  * - "delete-ingredient-submit-button" → deleteIngredient()
  */
+addIngredientButton.onclick = addIngredient;
+deleteIngredientButton.onclick = deleteIngredient;
 
 /*
  * TODO: Create an array to keep track of ingredients
  */
+let ingredient = [];
 
 /* 
  * TODO: On page load, call getIngredients()
  */
-
+document.addEventListener("DOMContentLoaded", getIngredients);
 
 /**
  * TODO: Add Ingredient Function
@@ -41,6 +49,36 @@ const BASE_URL = "http://localhost:8081"; // backend URL
  */
 async function addIngredient() {
     // Implement add ingredient logic here
+    const name = addIngredientNameInput.value.trim;
+    if(!name){
+        alert("Ingredient cannot be empty");
+        return; 
+    }
+
+    try {
+        const response = await fetch("/ingredients", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+        },
+        body: JSON.stringify({ name })
+        });
+        
+        if(!response.ok){
+            throw new Error(`Failed to add ingredient (status: ${response.status})`);
+        }
+
+        addIngredientNameInput.value = "";
+        
+        await getIngredients();
+        refreshIngredientList();
+
+    } catch (error) {
+        console.error("Error adding ingredient:", error);
+        alert("Could not add ingredient. Please try again.");
+    }
+
 }
 
 
