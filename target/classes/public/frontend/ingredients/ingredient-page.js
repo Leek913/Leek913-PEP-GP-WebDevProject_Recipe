@@ -29,7 +29,7 @@ deleteIngredientButton.onclick = deleteIngredient;
 /*
  * TODO: Create an array to keep track of ingredients
  */
-let ingredient = [];
+let ingredients = [];
 
 /* 
  * TODO: On page load, call getIngredients()
@@ -49,8 +49,8 @@ document.addEventListener("DOMContentLoaded", getIngredients);
  */
 async function addIngredient() {
     // Implement add ingredient logic here
-    const name = addIngredientNameInput.value.trim;
-    if(!name){
+    const ingredient = addIngredientNameInput.value.trim();
+    if(!ingredient){
         alert("Ingredient cannot be empty");
         return; 
     }
@@ -62,21 +62,17 @@ async function addIngredient() {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${sessionStorage.getItem("token")}`
         },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name : ingredient })
         });
-        
-        if(!response.ok){
+        if(response.ok){
+            addIngredientNameInput.value = "";
+            await getIngredients();
+            refreshIngredientList();
+        } else {
             throw new Error(`Failed to add ingredient (status: ${response.status})`);
         }
-
-        addIngredientNameInput.value = "";
-        
-        await getIngredients();
-        refreshIngredientList();
-
     } catch (error) {
-        console.error("Error adding ingredient:", error);
-        alert("Could not add ingredient. Please try again.");
+        alert(`Error adding ingredient: ${error}`);
     }
 
 }
@@ -93,6 +89,23 @@ async function addIngredient() {
  */
 async function getIngredients() {
     // Implement get ingredients logic here
+    try{
+        const response = await fetch("/ingredients", {
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+            },
+        })
+
+        if(response.ok){
+            ingredients = await response.json();
+            refreshIngredientList();
+        } else {
+            throw new Error(`Failed to fetch ingredients (status: ${response.status})`)
+        }
+         
+    } catch(error){
+        alert(`Failure requesting ingredients: ${error}`);
+    }
 }
 
 
@@ -109,6 +122,38 @@ async function getIngredients() {
  */
 async function deleteIngredient() {
     // Implement delete ingredient logic here
+    const ingredient = deleteIngredientNameInput.value.trim();
+    if(!ingredient){
+        alert("Ingredient cannot be empty");
+        return;
+    }
+
+    const index = ingredients.findIndex(X => X.name === ingredient);
+
+    if (index === -1) {
+        alert("Ingredient not found");
+        return;
+    }
+    const id = ingredients[index].id;
+
+    try{
+        const response = await fetch(`/ingredients/${id}`,{
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+            },
+        })
+
+        if(response.ok){
+            await getIngredients();
+            refreshIngredientList();
+            deleteIngredientNameInput.value = "";
+        } else {
+            throw new Error(`Failed to delete ingredients (status: ${response.status})`)
+        }
+    } catch(error){
+        alert(`Failure deleting request: ${error}`);
+    }
 }
 
 
@@ -124,4 +169,15 @@ async function deleteIngredient() {
  */
 function refreshIngredientList() {
     // Implement ingredient list rendering logic here
+    while(ingredientListContainer.firstChild){
+        ingredientListContainer.removeChild(ingredientListContainer.firstChild)
+    }
+
+    ingredients.forEach(ingredient => {
+        const li = document.createElement("li").append(document.createElement("p"));
+        const p = document.createElement("p");
+        p.textContent = ingredient.name;
+        li.append(p);
+        ingredientListContainer.appendChild(li);
+    })
 }

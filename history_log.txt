@@ -1,0 +1,7 @@
+commit aa22c48315b7e302b63e7307a1c69a4d982a0cc9
+Author: Malik  Hardmon <mjh00957@gmail.com>
+Date:   Tue Aug 19 02:15:09 2025 +0000
+
+    Ingredients Html page completed. JS file add method implemented
+
+ 33 files changed, 113 insertions(+), 4 deletions(-)
