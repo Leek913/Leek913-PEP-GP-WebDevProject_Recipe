@@ -22,7 +22,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const searchButton = document.getElementById("search-button")
     const recipeList = document.getElementById("recipe-list");
 
-    const addRecipeRameInput = document.getElementById("add-recipe-name-input");
+    const addRecipeNameInput = document.getElementById("add-recipe-name-input");
     const addRecipeInstructionsInput = document.getElementById("add-recipe-instructions-input");
     const addRecipeSubmitInput = document.getElementById("add-recipe-submit-input");
 
@@ -60,11 +60,17 @@ window.addEventListener("DOMContentLoaded", () => {
      * - Search button → searchRecipes()
      * - Logout button → processLogout()
      */
+    addRecipeSubmitInput.addEventListener("click", addRecipe);
+    updateRecipeSubmitInput.addEventListener("click", updateRecipe);
+    deleteRecipeSubmitInput.addEventListener("click", deleteRecipe);
+    searchButton.addEventListener("click", searchRecipes);
+    logoutButton.addEventListener("click", processLogout);
 
     /*
      * TODO: On page load, call getRecipes() to populate the list
      */
-
+    // document.addEventListener("DOMContentLoaded", getRecipes);
+    getRecipes();
 
     /**
      * TODO: Search Recipes Function
@@ -75,6 +81,30 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     async function searchRecipes() {
         // Implement search logic here
+        const input = searchInput.value.trim();
+        if(!input){
+            alert("Recipe cannot be empty");
+            return;
+        }
+
+        const recipe = recipes.find(X => X.name === input);
+        if(!recipe){ return; }
+
+        try{
+            const response = await fetch(`/recipes/${recipe.id}`, {
+                headers: {
+                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                },
+            });
+            if(!response.ok){
+                throw new Error(`Failed to fetch recipe (status: ${response.status})`)
+            }
+
+            recipes = await response.json();
+            refreshRecipeList();
+        } catch(error) {
+            alert(`Error fetching recipes: ${error}`);
+        }
     }
 
     /**
@@ -87,6 +117,34 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     async function addRecipe() {
         // Implement add logic here
+        const input = addRecipeNameInput.value.trim();
+        const instructionsInput = addRecipeInstructionsInput.value.trim();
+        if(!input || !instructionsInput){
+            alert("Values cannot be empty");
+            return;
+        }
+
+        try{
+            const response = await fetch("/recipes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                },
+                body: JSON.stringify({ name : input, instruction : instructionsInput })
+            })
+
+            if(!response.ok){
+                throw new Error(`Failed to add recipe (status: ${response.status})`);
+            }
+
+            addRecipeNameInput.value = "";
+            addRecipeInstructionsInput.value = "";
+            await getRecipes();
+            refreshRecipeList();
+        } catch(error) {
+            alert(`Error adding recipe: ${error}`);
+        }
     }
 
     /**
@@ -99,6 +157,43 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     async function updateRecipe() {
         // Implement update logic here
+        const input = updateRecipeNameInput.value.trim();
+        const instructionsInput = updateRecipeInstructionsInput.value.trim();
+
+        if(!input || !instructionsInput){
+            alert("Values cannot be empty");
+            return;
+        }
+
+        const recipe = recipes.find(X => X.name === input);
+        if(!recipe){ return; }
+
+        try {
+            const response = await fetch(`recipes/${recipe.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                },
+                body: JSON.stringify({ 
+                                        name : input, 
+                                        instructions : instructionsInput, 
+                                        author : recipe.author, 
+                                        ingredients : recipe.ingredients 
+                })
+            })
+            
+            if(!response.ok){
+                throw new Error(`Failed to update recipe (status: ${response.status})`);
+            }
+
+            updateRecipeNameInput.value = "";
+            updateRecipeInstructionsInput.value = "";
+            await getRecipes();
+            refreshRecipeList();
+        } catch(error) {
+            alert(`Error updating recipe ${error}`);
+        }
     }
 
     /**
@@ -110,6 +205,33 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     async function deleteRecipe() {
         // Implement delete logic here
+        const input = deleteRecipeNameInput.value.trim();
+        if(!input){
+            alert("Recipe cannot be empty");
+            return;
+        }
+
+        const recipe = recipes.find(X => X.name === input);
+        if(!recipe){ return; }
+
+        try{
+            const response = await fetch(`recipes/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                },
+                body: JSON.stringify({ name : input, instructions : instructionsInput, author : recipe.author, ingredients : recipe.ingredients })
+            })
+
+            if(!response.ok){
+                throw new Error(`Failed to delete recipe (status: ${response.status})`)
+            }
+
+            refreshRecipeList();
+        } catch(error) {
+             alert(`Error deleting recipe: ${error}`)
+        }
     }
 
     /**
@@ -120,6 +242,22 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     async function getRecipes() {
         // Implement get logic here
+        try{
+            const response = await fetch(`/recipes`, {
+                headers: {
+                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                },
+            })
+
+            if(!response.ok){
+                throw new Error(`Failed to fetch recipes (status: ${response.status})`)
+            }
+
+            recipes = await response.json();
+            refreshRecipeList();
+        } catch(error){
+                    alert(`Failure requesting recipes: ${error}`);
+        }
     }
 
     /**
@@ -130,6 +268,15 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     function refreshRecipeList() {
         // Implement refresh logic here
+        while(recipeList.firstChild){
+            recipeList.removeChild(recipeList.firstChild);
+        }
+
+        recipes.forEach(recipe => {
+            const li = document.createElement("li");
+            li.textContent= recipe.name + recipe.instructions;
+            recipeList.appendChild(li);
+        })
     }
 
     /**
@@ -141,6 +288,24 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     async function processLogout() {
         // Implement logout logic here
-    }
+        try{
+            const response = await fetch(`/logout`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                },
+            })
 
+            if(!response.ok){
+                alert(`Failure to logout: ${response.status}`);
+                return;
+            }
+
+            sessionStorage.clear();
+            window.location.href = "/frontend/login/login-page.html";
+        } catch(error) {
+            alert(`Failure to logout ${error}`);
+        }
+    }
 });

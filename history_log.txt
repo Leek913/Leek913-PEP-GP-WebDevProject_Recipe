@@ -1,7 +1,7 @@
-commit 3e6611d756455e7b611bd2eb7b7ecdfedba059a5
+commit 1c32d62ac585e8900e2de4a63f9a57b5392aa478
 Author: Malik  Hardmon <mjh00957@gmail.com>
-Date:   Wed Aug 20 02:38:27 2025 +0000
+Date:   Thu Aug 21 05:33:12 2025 +0000
 
-    Ingredients JS Completed.
+    Recipe Page Completed, Recipe JS File Partially Completed
 
- 3 files changed, 147 insertions(+), 28 deletions(-)
+ 7 files changed, 98 insertions(+), 14 deletions(-)

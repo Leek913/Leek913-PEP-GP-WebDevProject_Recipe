@@ -57,24 +57,24 @@ async function addIngredient() {
 
     try {
         const response = await fetch("/ingredients", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${sessionStorage.getItem("token")}`
-        },
-        body: JSON.stringify({ name : ingredient })
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ name : ingredient })
         });
-        if(response.ok){
-            addIngredientNameInput.value = "";
-            await getIngredients();
-            refreshIngredientList();
-        } else {
+
+        if(!response.ok){
             throw new Error(`Failed to add ingredient (status: ${response.status})`);
         }
+        
+        addIngredientNameInput.value = "";
+        await getIngredients();
+        refreshIngredientList();
     } catch (error) {
         alert(`Error adding ingredient: ${error}`);
     }
-
 }
 
 
@@ -96,13 +96,12 @@ async function getIngredients() {
             },
         })
 
-        if(response.ok){
-            ingredients = await response.json();
-            refreshIngredientList();
-        } else {
+        if(!response.ok){
             throw new Error(`Failed to fetch ingredients (status: ${response.status})`)
         }
-         
+        
+        ingredients = await response.json();
+        refreshIngredientList();
     } catch(error){
         alert(`Failure requesting ingredients: ${error}`);
     }
@@ -144,13 +143,13 @@ async function deleteIngredient() {
             },
         })
 
-        if(response.ok){
-            await getIngredients();
-            refreshIngredientList();
-            deleteIngredientNameInput.value = "";
-        } else {
+        if(!response.ok){
             throw new Error(`Failed to delete ingredients (status: ${response.status})`)
         }
+      
+        await getIngredients();
+        refreshIngredientList();
+        deleteIngredientNameInput.value = "";        
     } catch(error){
         alert(`Failure deleting request: ${error}`);
     }
