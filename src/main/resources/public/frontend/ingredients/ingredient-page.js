@@ -174,7 +174,7 @@ function refreshIngredientList() {
     }
 
     ingredients.forEach(ingredient => {
-        const li = document.createElement("li").append(document.createElement("p"));
+        const li = document.createElement("li");
         const p = document.createElement("p");
         p.textContent = ingredient.name;
         li.append(p);

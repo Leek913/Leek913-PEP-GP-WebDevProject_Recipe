@@ -16,14 +16,41 @@ window.addEventListener("DOMContentLoaded", () => {
      * - Admin link and logout button
      * - Search input
     */
+    const adminLink = document.getElementById("admin-link");
+    const logoutButton = document.getElementById("logout-button");
+    const searchInput = document.getElementById("search-input");
+    const searchButton = document.getElementById("search-button")
+    const recipeList = document.getElementById("recipe-list");
+
+    const addRecipeRameInput = document.getElementById("add-recipe-name-input");
+    const addRecipeInstructionsInput = document.getElementById("add-recipe-instructions-input");
+    const addRecipeSubmitInput = document.getElementById("add-recipe-submit-input");
+
+    const updateRecipeNameInput = document.getElementById("update-recipe-name-input");
+    const updateRecipeInstructionsInput = document.getElementById("update-recipe-instructions-input");
+    const updateRecipeSubmitInput = document.getElementById("update-recipe-submit-input");
+
+    const deleteRecipeNameInput = document.getElementById("delete-recipe-name-input");
+    const deleteRecipeSubmitInput = document.getElementById("delete-recipe-submit-input");
+
 
     /*
      * TODO: Show logout button if auth-token exists in sessionStorage
      */
+    if(sessionStorage.getItem("auth-token")){
+        logoutButton.style.display = "block";
+    } else {
+        logoutButton.style.display = "none";
+    }
 
     /*
      * TODO: Show admin link if is-admin flag in sessionStorage is "true"
      */
+    if(sessionStorage.getItem("is-admin") === "true"){
+        adminLink.style.display = "block";
+    } else {
+        adminLink.style.display = "none";
+    }
 
     /*
      * TODO: Attach event handlers
