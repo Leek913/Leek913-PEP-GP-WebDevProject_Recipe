@@ -69,8 +69,8 @@ window.addEventListener("DOMContentLoaded", () => {
     /*
      * TODO: On page load, call getRecipes() to populate the list
      */
-    // document.addEventListener("DOMContentLoaded", getRecipes);
-    getRecipes();
+    document.addEventListener("DOMContentLoaded", getRecipes);
+    // getRecipes();
 
     /**
      * TODO: Search Recipes Function
@@ -215,7 +215,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if(!recipe){ return; }
 
         try{
-            const response = await fetch(`recipes/${id}`, {
+            const response = await fetch(`recipes/${recipe.id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -303,7 +303,7 @@ window.addEventListener("DOMContentLoaded", () => {
             }
 
             sessionStorage.clear();
-            window.location.href = "/frontend/login/login-page.html";
+            window.location.href = "../login/login-page.html";
         } catch(error) {
             alert(`Failure to logout ${error}`);
         }

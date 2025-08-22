@@ -49,7 +49,14 @@ async function processLogin() {
     // - Trim input and validate that neither is empty
 
     // TODO: Create a requestBody object with username and password
-
+    const username = loginInput.value.trim();
+    const password = passwordInput.value.trim();
+    if(!username || !password){
+        alert(`Fields cannot be empty`);
+        return;
+    }
+    
+    const requestBody = {username, password};
     const requestOptions = {
         method: "POST",
         mode: "cors",
@@ -84,10 +91,34 @@ async function processLogin() {
 
         // TODO: For any other status code
         // - Alert the user with a generic error like "Unknown issue!"
+        const response = await fetch(`http://localhost:8081/login`, requestOptions);
+        if(response.status === 401){
+            alert("Incorrect login!");
+            return;
+        }
+        if(!response.ok){
+            alert(`Error logging in: (status: ${response.status})`);
+            return;
+        }
+        
+        const text = await response.text();
+        const string = text.split(" ");
+        const token = string[0];
+        const isAdmin = string[1];
+
+        sessionStorage.setItem("token", token);
+        sessionStorage.setItem("isAdmin", isAdmin);
+
+        logoutButton.style.display = "block";
+
+        setTimeout(() => {
+            window.location.href = "../recipe/recipe-page.html";
+        }, 500);
 
     } catch (error) {
         // TODO: Handle any network or unexpected errors
         // - Log the error and alert the user
+        alert(`Network error: ${error}`);
     }
 }
 

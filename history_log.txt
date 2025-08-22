@@ -1,7 +1,7 @@
-commit 2da126630dfc124ca7a816dec1bf0e25c8bec46b
+commit 3b09a9be1bec801a6ffb16444e2316827a6ac2c9
 Author: Malik  Hardmon <mjh00957@gmail.com>
-Date:   Thu Aug 21 21:31:46 2025 +0000
+Date:   Thu Aug 21 22:17:13 2025 +0000
 
-    Recipe Page JS completed. Ingredients JS logic altered. (108 Test Cases Passed).
+    Login Page Completed. Login JS partially completed.
 
- 5 files changed, 382 insertions(+), 54 deletions(-)
+ 5 files changed, 26 insertions(+), 6 deletions(-)
