@@ -131,7 +131,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${sessionStorage.getItem("token")}`
                 },
-                body: JSON.stringify({ name : input, instruction : instructionsInput })
+                body: JSON.stringify({ name : input, instructions : instructionsInput })
             })
 
             if(!response.ok){
@@ -169,7 +169,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if(!recipe){ return; }
 
         try {
-            const response = await fetch(`recipes/${recipe.id}`, {
+            const response = await fetch(`/recipes/${recipe.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
