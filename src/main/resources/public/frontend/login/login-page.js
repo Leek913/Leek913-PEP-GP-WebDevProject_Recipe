@@ -91,7 +91,7 @@ async function processLogin() {
 
         // TODO: For any other status code
         // - Alert the user with a generic error like "Unknown issue!"
-        const response = await fetch(`http://localhost:8081/login`, requestOptions);
+        const response = await fetch(`${BASE_URL}/login`, requestOptions);
         if(response.status === 401){
             alert("Incorrect login!");
             return;
@@ -106,8 +106,8 @@ async function processLogin() {
         const token = string[0];
         const isAdmin = string[1];
 
-        sessionStorage.setItem("token", token);
-        sessionStorage.setItem("isAdmin", isAdmin);
+        sessionStorage.setItem("auth-token", token);
+        sessionStorage.setItem("is-admin", isAdmin);
 
         logoutButton.style.display = "block";
 

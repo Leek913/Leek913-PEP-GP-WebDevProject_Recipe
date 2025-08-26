@@ -33,10 +33,10 @@ window.addEventListener("DOMContentLoaded", () => {
     const deleteRecipeNameInput = document.getElementById("delete-recipe-name-input");
     const deleteRecipeSubmitInput = document.getElementById("delete-recipe-submit-input");
 
-
     /*
      * TODO: Show logout button if auth-token exists in sessionStorage
      */
+
     if(sessionStorage.getItem("auth-token")){
         logoutButton.style.display = "block";
     } else {
@@ -82,18 +82,19 @@ window.addEventListener("DOMContentLoaded", () => {
     async function searchRecipes() {
         // Implement search logic here
         const input = searchInput.value.trim();
-        if(!input){
-            alert("Recipe cannot be empty");
-            return;
-        }
+        // if(!input){
+        //     alert("Recipe cannot be empty");
+        //     return;
+        // }
 
-        const recipe = recipes.find(X => X.name === input);
-        if(!recipe){ return; }
+        // const recipe = recipes.find(X => X.name === input);
+        // if(!recipe){ return; }
 
         try{
-            const response = await fetch(`/recipes/${recipe.id}`, {
+            const response = await fetch(`${BASE_URL}/recipes?name = ${encodeURIComponent(input)}`, {
+                method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                    "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
                 },
             });
             if(!response.ok){
@@ -103,7 +104,8 @@ window.addEventListener("DOMContentLoaded", () => {
             recipes = await response.json();
             refreshRecipeList();
         } catch(error) {
-            alert(`Error fetching recipes: ${error}`);
+            console.error(error);
+            alert(`Error fetching recipes`);
         }
     }
 
@@ -125,11 +127,11 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         try{
-            const response = await fetch("/recipes", {
+            const response = await fetch(`${BASE_URL}/recipes`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                    "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
                 },
                 body: JSON.stringify({ name : input, instructions : instructionsInput })
             })
@@ -169,11 +171,11 @@ window.addEventListener("DOMContentLoaded", () => {
         if(!recipe){ return; }
 
         try {
-            const response = await fetch(`/recipes/${recipe.id}`, {
+            const response = await fetch(`${BASE_URL}/recipes/${recipe.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                    "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
                 },
                 body: JSON.stringify({ 
                                         name : input, 
@@ -215,11 +217,11 @@ window.addEventListener("DOMContentLoaded", () => {
         if(!recipe){ return; }
 
         try{
-            const response = await fetch(`recipes/${recipe.id}`, {
+            const response = await fetch(`${BASE_URL}/recipes/${recipe.id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                    "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
                 },
                 body: JSON.stringify({ name : input, instructions : instructionsInput, author : recipe.author, ingredients : recipe.ingredients })
             })
@@ -243,9 +245,9 @@ window.addEventListener("DOMContentLoaded", () => {
     async function getRecipes() {
         // Implement get logic here
         try{
-            const response = await fetch(`/recipes`, {
+            const response = await fetch(`${BASE_URL}/recipes`, {
                 headers: {
-                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                    "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
                 },
             })
 
@@ -268,14 +270,11 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     function refreshRecipeList() {
         // Implement refresh logic here
-        while(recipeList.firstChild){
-            recipeList.removeChild(recipeList.firstChild);
-        }
-
+        recipeList.innerHTML = "";
         recipes.forEach(recipe => {
             const li = document.createElement("li");
-            li.textContent= recipe.name + recipe.instructions;
-            recipeList.appendChild(li);
+            li.textContent = `${recipe.name}: ${recipe.instructions}`;
+            recipeList.appendChild(li); 
         })
     }
 
@@ -289,11 +288,11 @@ window.addEventListener("DOMContentLoaded", () => {
     async function processLogout() {
         // Implement logout logic here
         try{
-            const response = await fetch(`/logout`, {
+            const response = await fetch(`${BASE_URL}/logout`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                    "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
                 },
             })
 

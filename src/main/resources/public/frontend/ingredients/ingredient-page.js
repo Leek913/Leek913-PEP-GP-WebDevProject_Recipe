@@ -56,11 +56,11 @@ async function addIngredient() {
     }
 
     try {
-        const response = await fetch("/ingredients", {
+        const response = await fetch(`${BASE_URL}/ingredients`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
             },
             body: JSON.stringify({ name : ingredient })
         });
@@ -90,9 +90,9 @@ async function addIngredient() {
 async function getIngredients() {
     // Implement get ingredients logic here
     try{
-        const response = await fetch("/ingredients", {
+        const response = await fetch(`${BASE_URL}/ingredients`, {
             headers: {
-                "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
             },
         })
 
@@ -136,10 +136,10 @@ async function deleteIngredient() {
     const id = ingredients[index].id;
 
     try{
-        const response = await fetch(`/ingredients/${id}`,{
+        const response = await fetch(`${BASE_URL}/ingredients/${id}`,{
             method: "DELETE",
             headers: {
-                "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
             },
         })
 
