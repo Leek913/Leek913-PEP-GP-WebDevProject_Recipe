@@ -69,7 +69,7 @@ window.addEventListener("DOMContentLoaded", () => {
     /*
      * TODO: On page load, call getRecipes() to populate the list
      */
-    document.addEventListener("DOMContentLoaded", getRecipes);
+    document.addEventListener("DOMContentLoaded", getRecipes());
     // getRecipes();
 
     /**
@@ -90,23 +90,19 @@ window.addEventListener("DOMContentLoaded", () => {
         // const recipe = recipes.find(X => X.name === input);
         // if(!recipe){ return; }
 
-        try{
-            const response = await fetch(`${BASE_URL}/recipes?name = ${encodeURIComponent(input)}`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
-                },
-            });
-            if(!response.ok){
-                throw new Error(`Failed to fetch recipe (status: ${response.status})`)
-            }
+        recipes.innerHTML = "";
+ 
+        let response = await fetch("http://localhost:8081/recipes?name="+input, {
+            // method:"GET", 
 
-            recipes = await response.json();
-            refreshRecipeList();
-        } catch(error) {
-            console.error(error);
-            alert(`Error fetching recipes`);
-        }
+        headers: {
+        "Content-Type": "application/json",
+
+        },
+    });
+        recipes = await response.json();
+        refreshRecipeList();
+    
     }
 
     /**
@@ -167,10 +163,20 @@ window.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const recipe = recipes.find(X => X.name === input);
-        if(!recipe){ return; }
+        // const recipe = recipes.find(X => X.name === input);
+        // if(!recipe){ return; }
 
         try {
+            const search = await fetch(`${BASE_URL}/recipes`);
+            if(!search.ok){
+                throw new Error(`Failed to fetch recipes`);
+            }
+            const recipes = await search.json();
+            const recipe = recipes.find(X => X.name === input);
+            if(!recipe){
+                alert(`Recipe has not been found`); 
+                return; 
+            }
             const response = await fetch(`${BASE_URL}/recipes/${recipe.id}`, {
                 method: "PUT",
                 headers: {
@@ -180,8 +186,6 @@ window.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ 
                                         name : input, 
                                         instructions : instructionsInput, 
-                                        author : recipe.author, 
-                                        ingredients : recipe.ingredients 
                 })
             })
             
@@ -213,17 +217,22 @@ window.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const recipe = recipes.find(X => X.name === input);
-        if(!recipe){ return; }
+        // const recipe = recipes.find(X => X.name === input);
+        // if(!recipe){ return; }
 
         try{
+            const search = await fetch(`${BASE_URL}/recipes`);
+                    if(!search.ok){
+                        throw new Error(`Failed to fetch recipes`);
+                    }
+                    const recipes = await search.json();
+                    const recipe = recipes.find(X => X.name === input);
+                    if(!recipe){ return; }
             const response = await fetch(`${BASE_URL}/recipes/${recipe.id}`, {
                 method: "DELETE",
                 headers: {
-                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
                 },
-                body: JSON.stringify({ name : input, instructions : instructionsInput, author : recipe.author, ingredients : recipe.ingredients })
             })
 
             if(!response.ok){
