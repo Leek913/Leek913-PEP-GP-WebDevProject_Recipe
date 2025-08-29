@@ -86,7 +86,7 @@ async function processRegistration() {
             return;
         }
     } catch(error) {
+        alert(`Error registering user.`);
         console.error(`Error: ${error}`);
-        alert(`Error registering user: ${error}`);
     }
 }

@@ -70,10 +70,10 @@ async function addIngredient() {
         }
         
         addIngredientNameInput.value = "";
-        await getIngredients();
-        refreshIngredientList();
+        getIngredients();
     } catch (error) {
-        alert(`Error adding ingredient: ${error}`);
+        alert(`Error adding ingredient.`);
+        console.log(error);
     }
 }
 
@@ -103,7 +103,8 @@ async function getIngredients() {
         ingredients = await response.json();
         refreshIngredientList();
     } catch(error){
-        alert(`Failure requesting ingredients: ${error}`);
+        alert(`Failure requesting ingredients.`);
+        console.error(error);
     }
 }
 
@@ -128,8 +129,7 @@ async function deleteIngredient() {
     }
 
     const index = ingredients.findIndex(X => X.name === ingredient);
-
-    if (index === -1) {
+    if(index === -1) {
         alert("Ingredient not found");
         return;
     }
@@ -146,12 +146,12 @@ async function deleteIngredient() {
         if(!response.ok){
             throw new Error(`Failed to delete ingredients (status: ${response.status})`)
         }
-      
-        await getIngredients();
-        refreshIngredientList();
+        
         deleteIngredientNameInput.value = "";        
+        getIngredients();
     } catch(error){
         alert(`Failure deleting request: ${error}`);
+        console.error(error);
     }
 }
 

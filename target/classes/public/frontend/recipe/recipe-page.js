@@ -82,27 +82,28 @@ window.addEventListener("DOMContentLoaded", () => {
     async function searchRecipes() {
         // Implement search logic here
         const input = searchInput.value.trim();
-        // if(!input){
-        //     alert("Recipe cannot be empty");
-        //     return;
-        // }
-
-        // const recipe = recipes.find(X => X.name === input);
-        // if(!recipe){ return; }
+        if(!input){
+            alert("Recipe cannot be empty");
+            return;
+        }
 
         recipes.innerHTML = "";
- 
-        let response = await fetch("http://localhost:8081/recipes?name="+input, {
-            // method:"GET", 
+        try{
+            const response = await fetch(`http://localhost:8081/recipes?name=${input}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
 
-        headers: {
-        "Content-Type": "application/json",
-
-        },
-    });
-        recipes = await response.json();
-        refreshRecipeList();
-    
+            if(!response.ok){
+                throw new Error(`Failed to fetch recipe recipes. ${response.status}`);
+            }
+            recipes = await response.json();
+            refreshRecipeList();
+       } catch (error){
+            alert(`Error finding recipes`);
+            console.error(error);
+       }
     }
 
     /**
@@ -114,7 +115,6 @@ window.addEventListener("DOMContentLoaded", () => {
      * - On success: clear inputs, fetch latest recipes, refresh the list
      */
     async function addRecipe() {
-        // Implement add logic here
         const input = addRecipeNameInput.value.trim();
         const instructionsInput = addRecipeInstructionsInput.value.trim();
         if(!input || !instructionsInput){
@@ -133,15 +133,15 @@ window.addEventListener("DOMContentLoaded", () => {
             })
 
             if(!response.ok){
-                throw new Error(`Failed to add recipe (status: ${response.status})`);
+                throw new Error(`Failed to add recipe. ${response.status}`);
             }
 
             addRecipeNameInput.value = "";
             addRecipeInstructionsInput.value = "";
-            await getRecipes();
-            refreshRecipeList();
+            getRecipes();
         } catch(error) {
-            alert(`Error adding recipe: ${error}`);
+            alert(`Error adding recipe.`);
+            console.error(error);
         }
     }
 
@@ -162,21 +162,14 @@ window.addEventListener("DOMContentLoaded", () => {
             alert("Values cannot be empty");
             return;
         }
-
-        // const recipe = recipes.find(X => X.name === input);
-        // if(!recipe){ return; }
-
-        try {
-            const search = await fetch(`${BASE_URL}/recipes`);
-            if(!search.ok){
-                throw new Error(`Failed to fetch recipes`);
-            }
-            const recipes = await search.json();
-            const recipe = recipes.find(X => X.name === input);
-            if(!recipe){
-                alert(`Recipe has not been found`); 
-                return; 
-            }
+        
+        const recipe = recipes.find(X => X.name === input);
+        if(!recipe){
+            alert(`Recipe has not been found`); 
+            return; 
+        }
+       
+        try {           
             const response = await fetch(`${BASE_URL}/recipes/${recipe.id}`, {
                 method: "PUT",
                 headers: {
@@ -185,20 +178,20 @@ window.addEventListener("DOMContentLoaded", () => {
                 },
                 body: JSON.stringify({ 
                                         name : input, 
-                                        instructions : instructionsInput, 
+                                        instructions : instructionsInput
                 })
             })
             
             if(!response.ok){
-                throw new Error(`Failed to update recipe (status: ${response.status})`);
+                throw new Error(`Failed to update recipe. ${response.status}`);
             }
 
             updateRecipeNameInput.value = "";
             updateRecipeInstructionsInput.value = "";
-            await getRecipes();
-            refreshRecipeList();
+            getRecipes();
         } catch(error) {
-            alert(`Error updating recipe ${error}`);
+            alert(`Error updating recipe`);
+            console.error(error);
         }
     }
 
@@ -217,31 +210,27 @@ window.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // const recipe = recipes.find(X => X.name === input);
-        // if(!recipe){ return; }
-
+        const recipe = recipes.find(X => X.name === input);
+        if(!recipe){ 
+            alert(`Recipe has not been found`);
+            return; 
+        }
         try{
-            const search = await fetch(`${BASE_URL}/recipes`);
-                    if(!search.ok){
-                        throw new Error(`Failed to fetch recipes`);
-                    }
-                    const recipes = await search.json();
-                    const recipe = recipes.find(X => X.name === input);
-                    if(!recipe){ return; }
             const response = await fetch(`${BASE_URL}/recipes/${recipe.id}`, {
                 method: "DELETE",
                 headers: {
-                    "Authorization": `Bearer ${sessionStorage.getItem("auth-token")}`
+                    'Authorization': `Bearer ${sessionStorage.getItem("auth-token")}`
                 },
             })
 
             if(!response.ok){
-                throw new Error(`Failed to delete recipe (status: ${response.status})`)
+                throw new Error(`Failed to delete recipe (status: ${response.status})`);
             }
-
-            refreshRecipeList();
+            deleteRecipeNameInput.value = "";
+            getRecipes();
         } catch(error) {
-             alert(`Error deleting recipe: ${error}`)
+            alert(`Error deleting recipe.`);
+            console.error(error);
         }
     }
 
@@ -263,11 +252,11 @@ window.addEventListener("DOMContentLoaded", () => {
             if(!response.ok){
                 throw new Error(`Failed to fetch recipes (status: ${response.status})`)
             }
-
             recipes = await response.json();
             refreshRecipeList();
         } catch(error){
-                    alert(`Failure requesting recipes: ${error}`);
+            alert(`Failure requesting recipes.`);
+            console.error(error);
         }
     }
 
@@ -279,11 +268,14 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     function refreshRecipeList() {
         // Implement refresh logic here
-        recipeList.innerHTML = "";
+        while(recipeList.firstChild){
+            recipeList.removeChild(recipeList.firstChild);
+        }
+
         recipes.forEach(recipe => {
             const li = document.createElement("li");
-            li.textContent = `${recipe.name}: ${recipe.instructions}`;
-            recipeList.appendChild(li); 
+            li.textContent= recipe.name + recipe.instructions;
+            recipeList.appendChild(li);
         })
     }
 
@@ -313,7 +305,8 @@ window.addEventListener("DOMContentLoaded", () => {
             sessionStorage.clear();
             window.location.href = "../login/login-page.html";
         } catch(error) {
-            alert(`Failure to logout ${error}`);
+            alert(`Failure to logout.`);
+            console.error(error);
         }
     }
 });
